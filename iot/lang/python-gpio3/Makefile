@@ -54,8 +54,6 @@ $(call Package/python-gpio3/description)
 (Variant for Python3)
 endef
 
-PYTHON_PKG_SETUP_ARGS:=
-PYTHON3_PKG_SETUP_ARGS:=
 
 
 

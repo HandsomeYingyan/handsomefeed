@@ -55,9 +55,6 @@ $(call Package/python-wiringpi/description)
 (Variant for Python3)
 endef
 
-PYTHON_PKG_SETUP_ARGS:=
-PYTHON3_PKG_SETUP_ARGS:=
-
 
 
 $(eval $(call PyPackage,python-wiringpi))
