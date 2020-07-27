@@ -1,0 +1,9 @@
+Package: adbd
+Version: 0.0.1-1
+Depends: libc, kmod-usb-gadget-functionfs
+Source: package/adbd
+SourceName: adbd
+Section: utils
+Architecture: arm_cortex-a7_neon-vfpv4
+Installed-Size: 44952
+Description:  it comes form Android 4.2!!
