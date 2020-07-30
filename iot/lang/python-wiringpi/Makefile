@@ -8,21 +8,18 @@ PKG_NAME:=py-wiringpi
 PKG_VERSION:=2.60.0
 PKG_RELEASE:=1
 
-PKG_SOURCE:=py-wiringpi-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://files.pythonhosted.org/packages/source/w/wiringpi
-PKG_HASH:=ea3da098468018930761e165d2d6f157
+PYPI_NAME:=wiringpi
+PKG_HASH:=3ed8f12889956b7f624b20292f2ee90e0757196f89678b28d53864bb9c84884d
 
 PKG_MAINTAINER:=HandsomeYingyan
 PKG_LICENSE:=LGPL
 PKG_LICENSE_FILES:=COPYING-LGPL
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(BUILD_VARIANT)-wiringpi-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 $(call include_mk, python-package.mk)
 $(call include_mk, python3-package.mk)
-
-PKG_UNPACK:=$(HOST_TAR) -C $(PKG_BUILD_DIR) --strip-components=1 -xzf $(DL_DIR)/$(PKG_SOURCE)
+$(call include_mk, pypi.mk)
 
 define Package/python-wiringpi/Default
   CATEGORY:=HandsomeMod Packages

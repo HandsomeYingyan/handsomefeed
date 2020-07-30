@@ -8,21 +8,19 @@ PKG_NAME:=gpio3
 PKG_VERSION:=3.0.1
 PKG_RELEASE:=1
 
-PKG_SOURCE:=gpio3-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://files.pythonhosted.org/packages/source/g/gpio3
-PKG_HASH:=f9e0447de0876f37fb3a2e8bf521192e
+PYPI_NAME:=gpio3
+PKG_HASH:=ecbeced6b855cde1442a620e29e42b8b67a44c7b390b55779edc619afd99af7a
 
 PKG_MAINTAINER:=HandsomeYingyan
 PKG_LICENSE:=LGPLV3
 PKG_LICENSE_FILES:=COPYING-LGPL
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(BUILD_VARIANT)-gpio3-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 $(call include_mk, python-package.mk)
 $(call include_mk, python3-package.mk)
+$(call include_mk, pypi.mk)
 
-PKG_UNPACK:=$(HOST_TAR) -C $(PKG_BUILD_DIR) --strip-components=1 -xzf $(DL_DIR)/$(PKG_SOURCE)
 
 define Package/python-gpio3/Default
   CATEGORY:=HandsomeMod Packages

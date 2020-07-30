@@ -86,7 +86,7 @@ ifeq ($(BOARD_PLATFORM),$(filter $(BOARD_PLATFORM),r18 r30))
     endif
 endif
 
-ifeq ($(BOARD_PLATFORM),$(filter $(BOARD_PLATFORM),r16 r58 v306 r40 r311 r11 r7 r333 r331 r7s g102 t7 r332 mr133 r328s2 r328s3))
+ifeq ($(BOARD_PLATFORM),$(filter $(BOARD_PLATFORM),r16 r58 r40 r311 r11 r7 r333 r331 r7s g102 t7 r332 mr133 r328s2 r328s3))
     ifeq ($(C_LIB_TYPE),musl)
         LocalAudioGain += ./arm-musl/libAudioGain.a
     endif
