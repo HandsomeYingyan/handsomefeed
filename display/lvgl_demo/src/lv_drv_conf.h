@@ -79,6 +79,8 @@
  *  DISPLAY DRIVERS
  *********************/
 
+#define USE_EVDEV 1
+
 /*-------------------
  *  Monitor of PC
  *-------------------*/
@@ -321,7 +323,7 @@
  * Mouse or touchpad as evdev interface (for Linux based systems)
  *------------------------------------------------*/
 #ifndef USE_EVDEV
-#  define USE_EVDEV           0
+#  define USE_EVDEV           1
 #endif
 
 #if USE_EVDEV

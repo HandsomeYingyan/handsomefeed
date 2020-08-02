@@ -8,7 +8,7 @@
 
 include $(TOPDIR)/rules.mk
 PKG_NAME:=lvgl_example
-PKG_VERSION:=0.0.1
+PKG_VERSION:=0.0.2
 PKG_RELEASE:=1
 
 
@@ -21,7 +21,7 @@ define Package/lvgl_example
 	CATEGORY:=Handsomemod packages
 	SUBMENU:=Hmgl Core
 	TITLE:=Demo
-	DEPENDS:= 
+	DEPENDS:= +tslib
 endef
 
 define Package/lvgl_example/description
@@ -34,7 +34,7 @@ define Build/Prepare
 endef
 
 TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include -I$(PKG_BUILD_DIR)/
-TARGET_LDFLAGS += -L$(STAGING_DIR)/usr/lib
+TARGET_LDFLAGS += -L$(STAGING_DIR)/usr/lib -lts
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR)/ \

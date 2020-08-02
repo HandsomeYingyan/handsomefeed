@@ -1,6 +1,7 @@
 #include "lvgl/lvgl.h"
 #include "lv_drivers/display/fbdev.h"
 #include "lv_examples/lv_examples.h"
+#include "lv_drivers/indev/evdev.h"
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
@@ -29,14 +30,23 @@ int main(void)
     disp_drv.buffer   = &disp_buf;
     disp_drv.flush_cb = fbdev_flush;
     lv_disp_drv_register(&disp_drv);
+    
+    /*Init evdev*/
+    lv_indev_drv_t indev_drv;
+    lv_indev_drv_init(&indev_drv);/*Basic initialization*/
+    evdev_init();
+    indev_drv.type = LV_INDEV_TYPE_POINTER;/*See below.*/
+    indev_drv.read_cb = evdev_read;/*See below.*/
+    lv_indev_drv_register(&indev_drv);/*Register the driver in LittlevGL*/
 
     /*Create a Demo*/
     
     lv_demo_printer();
     /*Handle LitlevGL tasks (tickless mode)*/
     while(1) {
+        lv_tick_inc(5);
         lv_task_handler();
-        usleep(5000);
+        usleep(1000);
     }
 
     return 0;
