@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=wiringNP
 PKG_VERSION:=2020-8-19
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/HandsomeYingyan/WiringNP-f1c200s-tiny200.git
+PKG_SOURCE_URL:=https://github.com/HandsomeYingyan/WiringNP-mainline.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:= f5bf3a26f2d9878fabb62c7996442ae3b2c57c44
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
