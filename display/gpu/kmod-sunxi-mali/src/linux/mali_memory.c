@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 ARM Limited. All rights reserved.
+ * Copyright (C) 2013-2017 ARM Limited. All rights reserved.
  * 
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
@@ -30,6 +30,9 @@
 #include "mali_memory_cow.h"
 #include "mali_memory_swap_alloc.h"
 #include "mali_memory_defer_bind.h"
+#if defined(CONFIG_DMA_SHARED_BUFFER)
+#include "mali_memory_secure.h"
+#endif
 
 extern unsigned int mali_dedicated_mem_size;
 extern unsigned int mali_shared_mem_size;
@@ -50,8 +53,21 @@ static void mali_mem_vma_close(struct vm_area_struct *vma)
 	/* If need to share the allocation, unref ref_count here */
 	mali_mem_allocation *alloc = (mali_mem_allocation *)vma->vm_private_data;
 
-	mali_allocation_unref(&alloc);
-	vma->vm_private_data = NULL;
+	if (NULL        != alloc) {
+		struct file *filp = NULL;
+		struct mali_session_data *session = NULL;
+
+		filp = vma->vm_file;
+		MALI_DEBUG_ASSERT(filp);
+		session = (struct mali_session_data *)filp->private_data;
+		MALI_DEBUG_ASSERT(session);
+
+		mali_session_memory_lock(session);
+		vma->vm_private_data = NULL;
+		mali_session_memory_unlock(session);
+
+		mali_allocation_unref(&alloc);
+	}
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
@@ -62,28 +78,46 @@ static int mali_mem_vma_fault(struct vm_fault *vmf)
 static int mali_mem_vma_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
 #endif
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
-	struct vm_area_struct *vma = vmf->vma;
-#endif
-	mali_mem_allocation *alloc = (mali_mem_allocation *)vma->vm_private_data;
+	struct file *filp = NULL;
+	struct mali_session_data *session = NULL;
+	mali_mem_allocation *alloc = NULL;
 	mali_mem_backend *mem_bkend = NULL;
 	int ret;
 	int prefetch_num = MALI_VM_NUM_FAULT_PREFETCH;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+	struct vm_area_struct *vma = vmf->vma;
+#endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
-	unsigned long address = vmf->address;
+	unsigned long address = (unsigned long)vmf->address;
 #else
 	unsigned long address = (unsigned long)vmf->virtual_address;
 #endif
+	filp = vma->vm_file;
+	MALI_DEBUG_ASSERT(filp);
+	session = (struct mali_session_data *)filp->private_data;
+	MALI_DEBUG_ASSERT(session);
+	mali_session_memory_lock(session);
+	if (NULL == vma->vm_private_data) {
+		MALI_DEBUG_PRINT(1, ("mali_vma_fault: The memory has been freed!\n"));
+		mali_session_memory_unlock(session);
+		return VM_FAULT_SIGBUS;
+	} else {
+		alloc = (mali_mem_allocation *)vma->vm_private_data;
+		MALI_DEBUG_ASSERT(alloc->backend_handle);
+		MALI_DEBUG_ASSERT(alloc->cpu_mapping.vma == vma);
+		MALI_DEBUG_ASSERT((unsigned long)alloc->cpu_mapping.addr <= address);
+		mali_allocation_ref(alloc);
+	}
+	mali_session_memory_unlock(session);
 
-	MALI_DEBUG_ASSERT(alloc->backend_handle);
-	MALI_DEBUG_ASSERT((unsigned long)alloc->cpu_mapping.addr <= address);
 
 	/* Get backend memory & Map on CPU */
 	mutex_lock(&mali_idr_mutex);
 	if (!(mem_bkend = idr_find(&mali_backend_idr, alloc->backend_handle))) {
 		MALI_DEBUG_PRINT(1, ("Can't find memory backend in mmap!\n"));
 		mutex_unlock(&mali_idr_mutex);
+		mali_allocation_unref(&alloc);
 		return VM_FAULT_SIGBUS;
 	}
 	mutex_unlock(&mali_idr_mutex);
@@ -100,6 +134,7 @@ static int mali_mem_vma_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
 		mutex_unlock(&mem_bkend->mutex);
 
 		if (ret != _MALI_OSK_ERR_OK) {
+			mali_allocation_unref(&alloc);
 			return VM_FAULT_OOM;
 		}
 		prefetch_num = 1;
@@ -112,6 +147,7 @@ static int mali_mem_vma_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
 		mutex_unlock(&mem_bkend->mutex);
 
 		if (unlikely(ret != _MALI_OSK_ERR_OK)) {
+			mali_allocation_unref(&alloc);
 			return VM_FAULT_SIGBUS;
 		}
 	} else if ((mem_bkend->type == MALI_MEM_SWAP) ||
@@ -129,14 +165,20 @@ static int mali_mem_vma_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
 
 		if (ret != _MALI_OSK_ERR_OK) {
 			MALI_DEBUG_PRINT(2, ("Mali swap memory page fault process failed, address=0x%x\n", address));
+			mali_allocation_unref(&alloc);
 			return VM_FAULT_OOM;
 		} else {
+			mali_allocation_unref(&alloc);
 			return VM_FAULT_LOCKED;
 		}
 	} else {
-		MALI_DEBUG_ASSERT(0);
-		/*NOT support yet*/
+		MALI_PRINT_ERROR(("Mali vma fault! It never happen, indicating some logic errors in caller.\n"));
+		mali_allocation_unref(&alloc);
+		/*NOT support yet or OOM*/
+		return VM_FAULT_OOM;
 	}
+
+	mali_allocation_unref(&alloc);
 	return VM_FAULT_NOPAGE;
 }
 
@@ -211,6 +253,11 @@ int mali_mmap(struct file *filp, struct vm_area_struct *vma)
 	}
 	mutex_unlock(&mali_idr_mutex);
 
+	if ((vma->vm_start + mem_bkend->size) > vma->vm_end) {
+		MALI_PRINT_ERROR(("mali_mmap: out of memory mapping map_size %d, physical_size %d\n",  vma->vm_end - vma->vm_start, mem_bkend->size));
+		return -EFAULT;
+	}
+
 	if (!(MALI_MEM_SWAP == mali_alloc->type ||
 	      (MALI_MEM_COW == mali_alloc->type && (mem_bkend->flags & MALI_MEM_BACKEND_FLAG_SWAP_COWED)))) {
 		/* Set some bits which indicate that, the memory is IO memory, meaning
@@ -259,9 +306,17 @@ int mali_mmap(struct file *filp, struct vm_area_struct *vma)
 			(MALI_MEM_BACKEND_FLAG_SWAP_COWED == (mem_bkend->flags & MALI_MEM_BACKEND_FLAG_SWAP_COWED)))) {
 		/*For swappable memory, CPU page table will be created by page fault handler. */
 		ret = 0;
+	} else if (mem_bkend->type == MALI_MEM_SECURE) {
+#if defined(CONFIG_DMA_SHARED_BUFFER)
+		ret = mali_mem_secure_cpu_map(mem_bkend, vma);
+#else
+		MALI_DEBUG_PRINT(1, ("DMA not supported for mali secure memory\n"));
+		return -EFAULT;
+#endif
 	} else {
 		/* Not support yet*/
-		MALI_DEBUG_ASSERT(0);
+		MALI_DEBUG_PRINT_ERROR(("Invalid type of backend memory! \n"));
+		return -EFAULT;
 	}
 
 	if (ret != 0) {
@@ -360,6 +415,12 @@ _mali_osk_errcode_t mali_memory_session_begin(struct mali_session_data *session_
 		MALI_ERROR(_MALI_OSK_ERR_FAULT);
 	}
 
+	session_data->cow_lock = _mali_osk_mutex_init(_MALI_OSK_LOCKFLAG_UNORDERED, 0);
+	if (NULL == session_data->cow_lock) {
+		_mali_osk_mutex_term(session_data->memory_lock);
+		MALI_ERROR(_MALI_OSK_ERR_FAULT);
+	}
+
 	mali_memory_manager_init(&session_data->allocation_mgr);
 
 	MALI_DEBUG_PRINT(5, ("MMU session begin: success\n"));
@@ -381,7 +442,7 @@ void mali_memory_session_end(struct mali_session_data *session)
 
 	/* Free the lock */
 	_mali_osk_mutex_term(session->memory_lock);
-
+	_mali_osk_mutex_term(session->cow_lock);
 	return;
 }
 
@@ -439,8 +500,9 @@ void _mali_page_node_ref(struct mali_page_node *node)
 		mali_mem_block_add_ref(node);
 	} else if (node->type == MALI_PAGE_NODE_SWAP) {
 		atomic_inc(&node->swap_it->ref_count);
-	} else
-		MALI_DEBUG_ASSERT(0);
+	} else {
+		MALI_DEBUG_PRINT_ERROR(("Invalid type of mali page node! \n"));
+	}
 }
 
 void _mali_page_node_unref(struct mali_page_node *node)
@@ -450,8 +512,9 @@ void _mali_page_node_unref(struct mali_page_node *node)
 		put_page(node->page);
 	} else if (node->type == MALI_PAGE_NODE_BLOCK) {
 		mali_mem_block_dec_ref(node);
-	} else
-		MALI_DEBUG_ASSERT(0);
+	} else {
+		MALI_DEBUG_PRINT_ERROR(("Invalid type of mali page node! \n"));
+	}
 }
 
 
@@ -485,7 +548,7 @@ int _mali_page_node_get_ref_count(struct mali_page_node *node)
 	} else if (node->type == MALI_PAGE_NODE_SWAP) {
 		return atomic_read(&node->swap_it->ref_count);
 	} else {
-		MALI_DEBUG_ASSERT(0);
+		MALI_DEBUG_PRINT_ERROR(("Invalid type of mali page node! \n"));
 	}
 	return -1;
 }
@@ -500,7 +563,7 @@ dma_addr_t _mali_page_node_get_dma_addr(struct mali_page_node *node)
 	} else if (node->type == MALI_PAGE_NODE_SWAP) {
 		return node->swap_it->dma_addr;
 	} else {
-		MALI_DEBUG_ASSERT(0);
+		MALI_DEBUG_PRINT_ERROR(("Invalid type of mali page node! \n"));
 	}
 	return 0;
 }
@@ -516,7 +579,7 @@ unsigned long _mali_page_node_get_pfn(struct mali_page_node *node)
 	} else if (node->type == MALI_PAGE_NODE_SWAP) {
 		return page_to_pfn(node->swap_it->page);
 	} else {
-		MALI_DEBUG_ASSERT(0);
+		MALI_DEBUG_PRINT_ERROR(("Invalid type of mali page node! \n"));
 	}
 	return 0;
 }

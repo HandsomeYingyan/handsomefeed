@@ -33,7 +33,7 @@ endef
 define Build/Compile
 endef
 
-WINDOW_SYSTEM_TYPE:=wayland
+WINDOW_SYSTEM_TYPE:=fbdev
 
 GPU_3RDPARTY_INCLUDE_DIR:=$(GPU_TYPE)/3rdparty/include/khronos
 GPU_INCLUDE_DIR:=$(GPU_TYPE)/$(WINDOW_SYSTEM_TYPE)/include
@@ -45,7 +45,7 @@ GPU_LIB_DIR:=$(GPU_TYPE)/$(WINDOW_SYSTEM_TYPE)/$(CONFIG_LIBC)/lib
 define Package/mali400-um
 	$(Package/$(PKG_NAME)/Default)
 	TITLE:=Mali-400 userspace libraries
-	DEPENDS:=+kmod-sunxi-mali +wayland +libdrm
+	DEPENDS:=+kmod-sunxi-mali +libdrm
 endef
 
 define Build/InstallDev
@@ -55,7 +55,7 @@ define Build/InstallDev
 	$(CP) -uvd $(GPU_LIB_DIR)/* $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(CP) -v pkgconfig/*.pc $(1)/usr/lib/pkgconfig
-	$(CP) -v $(GPU_TYPE)/wayland/pkgconfig/*.pc $(1)/usr/lib/pkgconfig
+	$(CP) -v $(GPU_TYPE)/fbdev/pkgconfig/*.pc $(1)/usr/lib/pkgconfig
 
 endef
 

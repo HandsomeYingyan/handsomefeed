@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2007-2015 OpenWrt.org
+# Copyright (C) 2020 HandsomeMod Project
 #
 # It is licensed under the GPLv3 (see COPYING).
 #
@@ -10,8 +10,8 @@ PKG_NAME:=glmark2
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/glmark2/glmark2.git
-PKG_SOURCE_VERSION:=  88bbc8383fbf8c0ddf5cd133c086df5173975d82
+PKG_SOURCE_URL:=https://github.com/HandsomeYingyan/glmark2-es2-fbdev.git
+PKG_SOURCE_VERSION:=aa83d65173ac1693e3972f094e1cde3626cea91a
 
 
 PKG_LICENSE:=GPLv3+ SGIv1
@@ -25,12 +25,12 @@ define Package/$(PKG_NAME)/config
 endef
 
 define Package/glmark2
-  SECTION:=gui
-  CATEGORY:=Wayland
+  SECTION:=multimedia
+  CATEGORY:=Multimedia
   TITLE:=glmark2 is an OpenGL 2.0 and ES 2.0 benchmark
   URL:=https://launchpad.net/glmark2/
   MAINTAINER:=
-  DEPENDS:= +libstdcpp +libpng +libjpeg  +GLMARK2_WAYLAND:wayland
+  DEPENDS:= +libstdcpp +libpng +libjpeg +mali400-um +libump +eudev
 endef
 
 define Package/glmark2/description
@@ -38,23 +38,17 @@ define Package/glmark2/description
 original glmark benchmark by Ben Smith.
 endef
 
-GLMARK2_FLAVORS_FBDEV += 
-GLMARK2_FLAVORS_WAYLAND += wayland-glesv2 drm-glesv2
 
-ifeq ($(CONFIG_GLMARK2_FBDEV), y)
-CONFIGURE_ARGS = \
-	--with-flavors=$(subst $(space),$(comma),$(GLMARK2_FLAVORS_FBDEV)) \
-	--prefix=$(CONFIGURE_PREFIX)
-endif
-ifeq ($(CONFIG_GLMARK2_WAYLAND), y)
+GLMARK2_FLAVORS_WAYLAND += fbdev-glesv2
+
+
 CONFIGURE_ARGS = \
 	--with-flavors=$(subst $(space),$(comma),$(GLMARK2_FLAVORS_WAYLAND)) \
 	--prefix=$(CONFIGURE_PREFIX)
-endif
 
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR); $(MAKE_FLAGS) ./waf configure $(CONFIGURE_ARGS) XXFLAGS=-std=c++11)
+	(cd $(PKG_BUILD_DIR); $(MAKE_FLAGS) ./waf configure $(CONFIGURE_ARGS))
 endef
 
 define Build/Compile

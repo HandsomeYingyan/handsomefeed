@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 ARM Limited. All rights reserved.
+ * Copyright (C) 2013-2017 ARM Limited. All rights reserved.
  * 
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
@@ -26,13 +26,11 @@
 #define MALI_OS_MEMORY_KERNEL_BUFFER_SIZE_IN_PAGES (MALI_OS_MEMORY_KERNEL_BUFFER_SIZE_IN_MB * 256)
 #define MALI_OS_MEMORY_POOL_TRIM_JIFFIES (10 * CONFIG_HZ) /* Default to 10s */
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 8, 0)
-static unsigned long dma_attrs_wc;
-#else
+static unsigned long dma_attrs_wc = 0;
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 /* Write combine dma_attrs */
 static DEFINE_DMA_ATTRS(dma_attrs_wc);
-#endif
 #endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 0, 0)
@@ -125,7 +123,7 @@ _mali_osk_errcode_t mali_mem_os_put_page(struct page *page)
 	if (1 == page_count(page)) {
 		atomic_sub(1, &mali_mem_os_allocator.allocated_pages);
 		dma_unmap_page(&mali_platform_device->dev, page_private(page),
-			       _MALI_OSK_MALI_PAGE_SIZE, DMA_TO_DEVICE);
+			       _MALI_OSK_MALI_PAGE_SIZE, DMA_BIDIRECTIONAL);
 		ClearPagePrivate(page);
 	}
 	put_page(page);
@@ -204,7 +202,7 @@ int mali_mem_os_alloc_pages(mali_mem_os_mem *os_mem, u32 size)
 	/* Allocate new pages, if needed. */
 	for (i = 0; i < remaining; i++) {
 		dma_addr_t dma_addr;
-		gfp_t flags = __GFP_ZERO | __GFP_NORETRY | __GFP_NOWARN;
+		gfp_t flags = __GFP_ZERO | __GFP_REPEAT | __GFP_NOWARN;
 		int err;
 
 #if defined(CONFIG_ARM) && !defined(CONFIG_ARM_LPAE)
@@ -236,7 +234,11 @@ int mali_mem_os_alloc_pages(mali_mem_os_mem *os_mem, u32 size)
 
 		/* Ensure page is flushed from CPU caches. */
 		dma_addr = dma_map_page(&mali_platform_device->dev, new_page,
-					0, _MALI_OSK_MALI_PAGE_SIZE, DMA_TO_DEVICE);
+					0, _MALI_OSK_MALI_PAGE_SIZE, DMA_BIDIRECTIONAL);
+		dma_unmap_page(&mali_platform_device->dev, dma_addr,
+			       _MALI_OSK_MALI_PAGE_SIZE, DMA_BIDIRECTIONAL);
+		dma_addr = dma_map_page(&mali_platform_device->dev, new_page,
+					0, _MALI_OSK_MALI_PAGE_SIZE, DMA_BIDIRECTIONAL);
 
 		err = dma_mapping_error(&mali_platform_device->dev, dma_addr);
 		if (unlikely(err)) {
@@ -257,7 +259,7 @@ int mali_mem_os_alloc_pages(mali_mem_os_mem *os_mem, u32 size)
 		if (unlikely(NULL == m_page)) {
 			MALI_PRINT_ERROR(("OS Mem: Can't allocate mali_page node! \n"));
 			dma_unmap_page(&mali_platform_device->dev, page_private(new_page),
-				       _MALI_OSK_MALI_PAGE_SIZE, DMA_TO_DEVICE);
+				       _MALI_OSK_MALI_PAGE_SIZE, DMA_BIDIRECTIONAL);
 			ClearPagePrivate(new_page);
 			__free_page(new_page);
 			os_mem->count = (page_count - remaining) + i;
@@ -453,6 +455,7 @@ u32 mali_mem_os_release(mali_mem_backend *mem_bkend)
 {
 
 	mali_mem_allocation *alloc;
+	struct mali_session_data *session;
 	u32 free_pages_nr = 0;
 	MALI_DEBUG_ASSERT_POINTER(mem_bkend);
 	MALI_DEBUG_ASSERT(MALI_MEM_OS == mem_bkend->type);
@@ -460,12 +463,18 @@ u32 mali_mem_os_release(mali_mem_backend *mem_bkend)
 	alloc = mem_bkend->mali_allocation;
 	MALI_DEBUG_ASSERT_POINTER(alloc);
 
+	session = alloc->session;
+	MALI_DEBUG_ASSERT_POINTER(session);
+
 	/* Unmap the memory from the mali virtual address space. */
 	mali_mem_os_mali_unmap(alloc);
 	mutex_lock(&mem_bkend->mutex);
 	/* Free pages */
 	if (MALI_MEM_BACKEND_FLAG_COWED & mem_bkend->flags) {
+		/* Lock to avoid the free race condition for the cow shared memory page node. */
+		_mali_osk_mutex_wait(session->cow_lock);
 		free_pages_nr = mali_mem_os_free(&mem_bkend->os_mem.pages, mem_bkend->os_mem.count, MALI_TRUE);
+		_mali_osk_mutex_signal(session->cow_lock);
 	} else {
 		free_pages_nr = mali_mem_os_free(&mem_bkend->os_mem.pages, mem_bkend->os_mem.count, MALI_FALSE);
 	}
@@ -573,7 +582,7 @@ void mali_mem_os_free_page_node(struct mali_page_node *m_page)
 
 	if (1  == page_count(page)) {
 		dma_unmap_page(&mali_platform_device->dev, page_private(page),
-			       _MALI_OSK_MALI_PAGE_SIZE, DMA_TO_DEVICE);
+			       _MALI_OSK_MALI_PAGE_SIZE, DMA_BIDIRECTIONAL);
 		ClearPagePrivate(page);
 	}
 	__free_page(page);
@@ -764,8 +773,7 @@ _mali_osk_errcode_t mali_mem_os_init(void)
 	if (NULL == mali_mem_os_allocator.wq) {
 		return _MALI_OSK_ERR_NOMEM;
 	}
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 8, 0)
+#if LINUX_VERSION_CODE >=  KERNEL_VERSION(4, 8, 0)
 	dma_attrs_wc = DMA_ATTR_WRITE_COMBINE;
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 	dma_set_attr(DMA_ATTR_WRITE_COMBINE, &dma_attrs_wc);
