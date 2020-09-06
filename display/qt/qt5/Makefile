@@ -44,17 +44,17 @@ define Package/qt5/Default
   TITLE:=qt5
   DEPENDS:=qt5-core
   URL:=http://qt-project.org
-  DEPENDS:=+librt +libstdcpp +libpthread @!LINUX_2_6_36
+  DEPENDS:=+librt +libstdcpp +libpthread 
 endef
 
-ifeq ($(PACKAGE_qt5-wayland),y)
-CONFIGURE_ARGS += -qpa wayland
-endif
+#ifeq ($(PACKAGE_qt5-wayland),y)
+#CONFIGURE_ARGS += -qpa wayland
+#endif
 
 define Package/qt5-core
   $(call Package/qt5/Default)
   TITLE+=core
-  DEPENDS:=+librt +zlib +tslib +libfreetype +libsqlite3 +libstdcpp +libinput +libpthread +glib2 +libdbus @!LINUX_2_6
+  DEPENDS:=+librt +zlib +tslib +libfreetype +libsqlite3 +libstdcpp +libinput +libpthread +glib2 +libdbus +libzstd @!LINUX_2_6
 endef
 
 define Package/qt5-gui
@@ -62,13 +62,13 @@ define Package/qt5-gui
   TITLE+=gui(eglfs)
   DEPENDS+=+qt5-core +qt5-dbus +libinput +tslib +mtdev +glib2 +fontconfig \
 	   +PACKAGE_qt5-gui:libpng +PACKAGE_qt5-gui:libfreetype \
-	   +PACKAGE_qt5-gui:libjpeg 
+	   +PACKAGE_qt5-gui:libjpeg +mali400-um 
 endef
 
 define Package/qt5-multimedia
   $(call Package/qt5/Default)
   TITLE+=multimedia
-  DEPENDS+=+qt5-core +qt5-gui +qt5-network +qt5-quick +qt5-widgets
+  DEPENDS+=+qt5-core +qt5-gui +qt5-network +qt5-quick +qt5-widgets +qt5-opengl
 endef
 
 define Package/qt5-network
@@ -170,19 +170,13 @@ endef
 define Package/qt5-sql
   $(call Package/qt5/Default)
   TITLE+=sql(sqlite)
-  DEPENDS+=+libsqlite3
+  DEPENDS+=+libsqlite3 +libdbus +libfreetype +tslib +mtdev +qt5-core
 endef
 
 define Package/qt5-test
   $(call Package/qt5/Default)
   TITLE+=test
   DEPENDS+=+qt5-gui +qt5-network +qt5-qml +qt5-quick +qt5-widgets
-endef
-
-define Package/qt5-enginio
-  $(call Package/qt5/Default)
-  TITLE+=enginio
-  DEPENDS+=+qt5-core +qt5-network +qt5-qml
 endef
 
 define Package/qt5-widgets
@@ -224,7 +218,7 @@ endef
 define Package/qt5-opengl
   $(call Package/qt5/Default)
   TITLE+=opengl
-  DEPENDS+=+qt5-core +qt5-gui +qt5-widgets
+  DEPENDS+=+qt5-core +qt5-gui +qt5-widgets 
 endef
 
 define Package/qt5-positioning
@@ -314,19 +308,7 @@ endef
 define Package/qt5-help
   $(call Package/qt5/Default)
   TITLE+=help
-  DEPENDS+=+qt5-core +qt5-gui +qt5-widgets +qt5-sql +qt5-network +qt5-clucene
-endef
-
-define Package/qt5-labstemplates
-  $(call Package/qt5/Default)
-  TITLE+=labstemplates
-  DEPENDS+=+qt5-core +qt5-gui +qt5-quick +qt5-network +qt5-qml
-endef
-
-define Package/qt5-clucene
-  $(call Package/qt5/Default)
-  TITLE+=clucene
-  DEPENDS+=+qt5-core
+  DEPENDS+=+qt5-core +qt5-gui +qt5-widgets +qt5-sql +qt5-network 
 endef
 
 define Package/qt5-quickparticles
@@ -346,7 +328,7 @@ endef
 define Package/qt5-charts
   $(call Package/qt5/Default)
   TITLE+=charts
-  DEPENDS+=+qt5-core  +qt5-gui +qt5-qml +qt5-quick +qt5-widgets
+  DEPENDS+=+qt5-core  +qt5-gui +qt5-qml +qt5-quick +qt5-widgets +qt5-opengl 
 endef
 
 define Package/qt5-speech
@@ -364,38 +346,20 @@ endef
 define Package/qt5-purchasing
   $(call Package/qt5/Default)
   TITLE+=purchasing
-  DEPENDS+=+qt5-core  +qt5-gui +qt5-qml +qt5-network qt5-quick
+  DEPENDS+=+qt5-core +qt5-gui +qt5-qml +qt5-network +qt5-quick +qt5-opengl 
 endef
 
 define Package/qt5-datavis3d
   $(call Package/qt5/Default)
   TITLE+=datavis3d
-  DEPENDS+=+qt5-core  +qt5-qml
-endef
-define Package/qt5-examples
-  $(call Package/qt5/Default)
-  TITLE+=examples
-  DEPENDS+=+qt5-core +qt5-gui +qt5-3d \
-	   +qt5-svg +qt5-sql +qt5-network +qt5-quick +qt5-quickwidgets \
-	   +qt5-multimedia +qt5-network \
-	   +qt5-qml +qt5-quick +qt5-quick-2 +qt5-sql +qt5-test \
-	   +qt5-widgets +qt5-bluetooth +qt5-concurrent +qt5-dbus \
-	   +qt5-location +qt5-nfc +qt5-positioning \
-	   +qt5-printsupport +qt5-quickwidgets +qt5-script \
-	   +qt5-scripttools +qt5-sensors +qt5-serialport \
-	   +qt5-svg +qt5-webchannel +qt5-websocket +qt5-enginio\
-	   +qt5-xml +qt5-xmlpatterns +qt5-serialbus +qt5-help \
-	   +qt5-clucene +qt5-labstemplates +qt5-quickparticles \
-           +qt5-charts +qt5-datavis3d +qt5-network +qt5-purchasing +qt5-quick-2 \
-           +qt5-scxml +qt5-speech +qt5-bluetooth  +qt5-remoteobjects \
-           +qt5-script
+  DEPENDS+=+qt5-core +qt5-qml +qt5-opengl 
 endef
 
-define Package/qt5-wayland
-  $(call Package/qt5/Default)
-  TITLE+=wayland
-  DEPENDS+=+qt5-core +qt5-gui +qt5-dbus +qt5-network +qt5-qml +qt5-quick +qt5-wayland:weston +qt5-wayland:wayland
-endef
+#define Package/qt5-wayland
+#  $(call Package/qt5/Default)
+# TITLE+=wayland
+#  DEPENDS+=+qt5-core +qt5-gui +qt5-dbus +qt5-network +qt5-qml +qt5-quick +qt5-wayland:weston +qt5-wayland:wayland
+#endef
 
 define Package/qt5-gamepad
   $(call Package/qt5/Default)
@@ -540,12 +504,11 @@ CONFIGURE_ARGS = \
 		-no-pch \
 		-no-ltcg \
 		-no-use-gold-linker \
-		-no-eglfs \
+		-eglfs \
 		-no-kms \
 		-no-gbm \
 		-no-directfb \
- 		-no-opengl \
-		-no-opengles3 \
+		-opengl es2 \
 		--enable-linuxfb \
 		-no-mirclient \
 		-no-libinput \
@@ -598,15 +561,16 @@ define Package/qt5-gui/install
 		$(PKG_BUILD_DIR)/qtbase/lib/libQt5Gui.so* \
 		$(1)/usr/lib/
 # for opengl disable for now
-#	$(CP) \
-#		$(PKG_BUILD_DIR)/qtbase/lib/libQt5EglFSDeviceIntegration.so* \
-#		$(1)/usr/lib/
-#	$(CP) \
-#		$(PKG_BUILD_DIR)/qtbase/lib/qt5/plugins/platforms/libqeglfs.so \
-#		$(1)/usr/lib/qt5/plugins/platforms/
-#	$(CP) \
-#		$(PKG_BUILD_DIR)/qtbase/lib/qt5/plugins/egldeviceintegrations/* \
-#		$(1)/usr/lib/qt5/plugins/egldeviceintegrations/
+	$(CP) \
+		$(PKG_BUILD_DIR)/qtbase/lib/libQt5EglFSDeviceIntegration.so* \
+		$(1)/usr/lib/
+	$(CP) \
+		$(PKG_BUILD_DIR)/qtbase/plugins/platforms/libqeglfs.so \
+		$(1)/usr/lib/qt5/plugins/platforms/
+	$(CP) \
+		$(PKG_BUILD_DIR)/qtbase/plugins/egldeviceintegrations/* \
+		$(1)/usr/lib/qt5/plugins/egldeviceintegrations/
+##
 	$(CP) \
 		./files/qt-env.sh \
 		$(1)/etc/
@@ -731,24 +695,24 @@ define Package/qt5-quick-localstorage/install
 endef
 
 define Package/qt5-quick-particles/install
-	#$(INSTALL_DIR) $(1)/usr/lib/qt5/qml/QtQuick
-	#$(CP) \
-	#	$(PKG_BUILD_DIR)/qtdeclarative/qml/QtQuick/Particles.2 \
-	#	$(1)/usr/lib/qt5/qml/QtQuick/
+	$(INSTALL_DIR) $(1)/usr/lib/qt5/qml/QtQuick
+	$(CP) \
+		$(PKG_BUILD_DIR)/qtdeclarative/qml/QtQuick/Particles.2 \
+		$(1)/usr/lib/qt5/qml/QtQuick/
 endef
 
 define Package/qt5-quick-privatewidgets/install
-#	$(INSTALL_DIR) $(1)/usr/lib/qt5/qml/QtQuick
-#	$(CP) \
-#		$(PKG_BUILD_DIR)/qtdeclarative/qml/QtQuick/PrivateWidgets \
-#		$(1)/usr/lib/qt5/qml/QtQuick/
+	$(INSTALL_DIR) $(1)/usr/lib/qt5/qml/QtQuick
+	$(CP) \
+		$(PKG_BUILD_DIR)/qtdeclarative/qml/QtQuick/PrivateWidgets \
+		$(1)/usr/lib/qt5/qml/QtQuick/
 endef
 
 define Package/qt5-quick-scene3d/install
-#	$(INSTALL_DIR) $(1)/usr/lib/qt5/qml/QtQuick
-#	$(CP) \
-#		$(PKG_BUILD_DIR)/qtdeclarative/qml/QtQuick/Scene3D \
-#		$(1)/usr/lib/qt5/qml/QtQuick/
+	$(INSTALL_DIR) $(1)/usr/lib/qt5/qml/QtQuick
+	$(CP) \
+		$(PKG_BUILD_DIR)/qtdeclarative/qml/QtQuick/Scene3D \
+		$(1)/usr/lib/qt5/qml/QtQuick/
 endef
 
 define Package/qt5-quick-window/install
@@ -772,7 +736,7 @@ define Package/qt5-sql/install
 		$(PKG_BUILD_DIR)/qtbase/lib/libQt5Sql.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/qt5/plugins/sqldrivers/libqsqlite.so \
+		$(PKG_BUILD_DIR)/qtbase/plugins/sqldrivers/libqsqlite.so \
 		$(1)/usr/lib/qt5/plugins/sqldrivers/
 endef
 
@@ -786,20 +750,11 @@ define Package/qt5-test/install
 		$(PKG_BUILD_DIR)/qtdeclarative/qml/QtTest \
 		$(1)/usr/lib/qt5/qml/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt5QuickTest.so* \
+		$(PKG_BUILD_DIR)/qtdeclarative/lib/libQt5QuickTest.so* \
 		$(1)/usr/lib/
 endef
 
-define Package/qt5-enginio/install
-	$(INSTALL_DIR) $(1)/usr/lib/
-	$(INSTALL_DIR) $(1)/usr/lib/qt5/qml
-	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libEnginio.so* \
-		$(1)/usr/lib/
-	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/qt5/qml/Enginio \
-		$(1)/usr/lib/qt5/qml/
-endef
+
 
 define Package/qt5-widgets/install
 	$(INSTALL_DIR) $(1)/usr/lib/
@@ -867,6 +822,9 @@ define Package/qt5-positioning/install
 	$(INSTALL_DIR) $(1)/usr/lib/qt5/qml
 	$(CP) \
 		$(PKG_BUILD_DIR)/qtlocation/lib/libQt5Positioning.so* \
+		$(1)/usr/lib/
+	$(CP) \
+		$(PKG_BUILD_DIR)/qtlocation/lib/libQt5PositioningQuick.so* \
 		$(1)/usr/lib/
 	$(CP) \
 		$(PKG_BUILD_DIR)/qtlocation/qml/QtPositioning \
@@ -948,10 +906,10 @@ define Package/qt5-websocket/install
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/lib/qt5/qml
 	$(CP) \
-		$(PKG_BUILD_DIR)/websocket/lib/libQt5WebSockets.so* \
+		$(PKG_BUILD_DIR)/qtwebsockets/lib/libQt5WebSockets.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtwebsocket/qml/QtWebSockets \
+		$(PKG_BUILD_DIR)/qtwebsockets/qml/QtWebSockets \
 		$(1)/usr/lib/qt5/qml/
 endef
 
@@ -983,12 +941,6 @@ define Package/qt5-help/install
 		$(1)/usr/lib/
 endef
 
-define Package/qt5-labstemplates/install
-	$(INSTALL_DIR) $(1)/usr/lib/
-	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt5QuickParticles.so* \
-		$(1)/usr/lib/
-endef
 
 define Package/qt5-quickparticles/install
 	$(INSTALL_DIR) $(1)/usr/lib/
@@ -997,77 +949,71 @@ define Package/qt5-quickparticles/install
 		$(1)/usr/lib/
 endef
 
-define Package/qt5-clucene/install
-	$(INSTALL_DIR) $(1)/usr/lib/
-	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt5CLucene.so* \
-		$(1)/usr/lib/
-endef
 
 define Package/qt5-3d/install
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/lib/qt5/qml
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt53DCore.so* \
+		$(PKG_BUILD_DIR)/qt3d/lib/libQt53DCore.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt53DInput.so* \
+		$(PKG_BUILD_DIR)/qt3d/lib/libQt53DInput.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt53DLogic.so* \
+		$(PKG_BUILD_DIR)/qt3d/lib/libQt53DLogic.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt53DQuick.so* \
+		$(PKG_BUILD_DIR)/qt3d/lib/libQt53DQuick.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt53DQuickInput.so* \
+		$(PKG_BUILD_DIR)/qt3d/lib/libQt53DQuickInput.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt53DRender.so* \
+		$(PKG_BUILD_DIR)/qt3d/lib/libQt53DRender.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt53DQuickRender.so* \
+		$(PKG_BUILD_DIR)/qt3d/lib/libQt53DQuickRender.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt53DAnimation.so* \
+		$(PKG_BUILD_DIR)/qt3d/lib/libQt53DAnimation.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt53DExtras.so* \
+		$(PKG_BUILD_DIR)/qt3d/lib/libQt53DExtras.so* \
                 $(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt53DQuickAnimation.so* \
+		$(PKG_BUILD_DIR)/qt3d/lib/libQt53DQuickAnimation.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/libQt53DQuickExtras.so* \
+		$(PKG_BUILD_DIR)/qt3d/lib/libQt53DQuickExtras.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/qt5/qml/Qt3D \
+		$(PKG_BUILD_DIR)/qt3d/qml/Qt3D \
 		$(1)/usr/lib/qt5/qml/
-	$(CP) \
-		$(PKG_BUILD_DIR)/qtbase/lib/qt5/qml/QtCanvas3D \
-		$(1)/usr/lib/qt5/qml/
+#	$(CP) \
+#		$(PKG_BUILD_DIR)/qt3d/qml/QtCanvas3D \
+#		$(1)/usr/lib/qt5/qml/
 endef
 
-define Package/qt5-wayland/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DIR) $(1)/usr/lib/qt5/qml
-	$(INSTALL_DIR) $(1)/usr/lib/qt5/plugins/platforms
-	$(CP) \
-		$(PKG_BUILD_DIR)/qtwayland/lib/libQt5WaylandClient.so* \
-		$(1)/usr/lib/
-	$(CP) \
-		$(PKG_BUILD_DIR)/qtwayland/lib/libQt5WaylandCompositor.so* \
-		$(1)/usr/lib/
-	$(CP) \
-		$(PKG_BUILD_DIR)/qtwayland/qml/QtWayland \
-		$(1)/usr/lib/qt5/qml/
-	$(CP) \
-		$(PKG_BUILD_DIR)/qtwayland/lib/qt5/plugins/platforms/libqwayland-generic.so \
-		$(1)/usr/lib/qt5/plugins/platforms
-	$(CP) \
-		$(PKG_BUILD_DIR)/qtwaylad/lib/qt5/plugins/platforms/libqwayland-egl.so \
-		$(1)/usr/lib/qt5/plugins/platforms
-endef
+#define Package/qt5-wayland/install
+#	$(INSTALL_DIR) $(1)/usr/lib
+#	$(INSTALL_DIR) $(1)/usr/lib/qt5/qml
+#	$(INSTALL_DIR) $(1)/usr/lib/qt5/plugins/platforms
+#	$(CP) \
+#		$(PKG_BUILD_DIR)/qtwayland/lib/libQt5WaylandClient.so* \
+#		$(1)/usr/lib/
+#	$(CP) \
+#		$(PKG_BUILD_DIR)/qtwayland/lib/libQt5WaylandCompositor.so* \
+#		$(1)/usr/lib/
+#	$(CP) \
+#		$(PKG_BUILD_DIR)/qtwayland/qml/QtWayland \
+#		$(1)/usr/lib/qt5/qml/
+#	$(CP) \
+#		$(PKG_BUILD_DIR)/qtwayland/lib/qt5/plugins/platforms/libqwayland-generic.so \
+#		$(1)/usr/lib/qt5/plugins/platforms
+#	$(CP) \
+#		$(PKG_BUILD_DIR)/qtwaylad/lib/qt5/plugins/platforms/libqwayland-egl.so \
+#		$(1)/usr/lib/qt5/plugins/platforms
+#endef
 
 define Package/qt5-gamepad/install
 	$(INSTALL_DIR) $(1)/usr/lib
@@ -1076,7 +1022,7 @@ define Package/qt5-gamepad/install
 		$(PKG_BUILD_DIR)/qtgamepad/lib/libQt5Gamepad.so* \
 		$(1)/usr/lib/
 	$(CP) \
-		$(PKG_BUILD_DIR)/qtgamepad/lib/qt5/qml/QtGamepad \
+		$(PKG_BUILD_DIR)/qtgamepad/qml/QtGamepad \
 		$(1)/usr/lib/qt5/qml/
 
 endef
@@ -1128,21 +1074,6 @@ define Package/qt5-purchasing/install
 		$(1)/usr/lib/qt5/qml/
 endef
 
-define Package/qt5-examples/install
-	$(INSTALL_DIR) \
-		$(1)/usr/share/qt5
-
-	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/share/qt5/examples \
-		$(1)/usr/share/qt5/
-
-	$(FIND) \
-		$(1) \
-		-name "*.cpp" -o \
-		-name "*.h" -o \
-		-name "*.pro" \
-		| $(XARGS) rm
-endef
 
 define Package/qt5-drivers-mouse/install
 	$(INSTALL_DIR) \
@@ -1257,7 +1188,6 @@ $(eval $(call BuildPackage,qt5-quick-window))
 $(eval $(call BuildPackage,qt5-quick-xmllistmodel))
 $(eval $(call BuildPackage,qt5-sql))
 $(eval $(call BuildPackage,qt5-test))
-$(eval $(call BuildPackage,qt5-enginio))
 $(eval $(call BuildPackage,qt5-widgets))
 $(eval $(call BuildPackage,qt5-bluetooth))
 $(eval $(call BuildPackage,qt5-concurrent))
@@ -1280,8 +1210,6 @@ $(eval $(call BuildPackage,qt5-xml))
 $(eval $(call BuildPackage,qt5-xmlpatterns))
 $(eval $(call BuildPackage,qt5-serialbus))
 $(eval $(call BuildPackage,qt5-help))
-$(eval $(call BuildPackage,qt5-clucene))
-$(eval $(call BuildPackage,qt5-labstemplates))
 $(eval $(call BuildPackage,qt5-quickparticles))
 $(eval $(call BuildPackage,qt5-3d))
 $(eval $(call BuildPackage,qt5-charts))
@@ -1289,8 +1217,7 @@ $(eval $(call BuildPackage,qt5-speech))
 $(eval $(call BuildPackage,qt5-scxml))
 $(eval $(call BuildPackage,qt5-purchasing))
 $(eval $(call BuildPackage,qt5-datavis3d))
-$(eval $(call BuildPackage,qt5-examples))
-$(eval $(call BuildPackage,qt5-wayland))
+#$(eval $(call BuildPackage,qt5-wayland))
 $(eval $(call BuildPackage,qt5-gamepad))
 $(eval $(call BuildPackage,qt5-drivers-mouse))
 $(eval $(call BuildPackage,qt5-drivers-keyboard))
