@@ -17,9 +17,9 @@ include $(INCLUDE_DIR)/package.mk
 define KernelPackage/$(PKG_NAME)
   SUBMENU:=Display Support
   TITLE:=Allwinner ARM Mali400 GPU module
-  DEPENDS:=@TARGET_sunxi
+  DEPENDS:=@TARGET_sunxi +kmod-sun4i-drm
   MAINTAINER:=HandsomeYingyan <handsomeyingyan@gmail.com>
-  KCONFIG:=
+  KCONFIG:= CONFIG_DRM_FBDEV_LEAK_PHYS_SMEM=y
   FILES:=$(PKG_BUILD_DIR)/mali.ko
   AUTOLOAD:=$(call AutoProbe,mali)
 endef
