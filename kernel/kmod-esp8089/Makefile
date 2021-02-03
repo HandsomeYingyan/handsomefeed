@@ -8,24 +8,21 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=esp8089-spi
+PKG_NAME:=esp8089
 PKG_RELEASE:=1.0
-PKG_SOURCE_URL:=https://github.com/HandsomeYingyan/ESP8089-SPI.git
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_DATE:=2021-02-03
-PKG_SOURCE_VERSION:=c9b1702c629f29f98787076de7f075a818c3a006
+
 STAMP_CONFIGURED_DEPENDS := $(STAGING_DIR)/usr/include/mac80211-backport/backport/autoconf.h
 
 include $(INCLUDE_DIR)/package.mk
 
 define KernelPackage/$(PKG_NAME)
   SUBMENU:=Wireless Drivers
-  TITLE:=Esp8089 cfg80211 wifi driver over spi
-  DEPENDS:=+kmod-spi-gpio +kmod-cfg80211 +kmod-mac80211 +@DRIVER_11N_SUPPORT +@DRIVER_11AC_SUPPORT
+  TITLE:=Esp8089 cfg80211 wifi driver
+  DEPENDS:=+kmod-cfg80211 +kmod-mac80211 +@DRIVER_11N_SUPPORT +@DRIVER_11AC_SUPPORT
   MAINTAINER:=HandsomeYingyan <handsomeyingyan@gmail.com>
   KCONFIG:=
-  FILES:=$(PKG_BUILD_DIR)/esp8089-spi.ko
-#AUTOLOAD:=$(call AutoProbe,esp8089)
+  FILES:=$(PKG_BUILD_DIR)/esp8089.ko
+  AUTOLOAD:=$(call AutoProbe,esp8089)
 endef
 
 include $(INCLUDE_DIR)/kernel-defaults.mk
@@ -41,6 +38,11 @@ NOSTDINC_FLAGS = \
 
 NOSTDINC_FLAGS+=-DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT -DBUILD_OPENWRT
 
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	#mkdir -p $(PKG_BUILD_DIR)
+	$(CP) ./src/* $(PKG_BUILD_DIR)/
+endef
 
 define Build/Compile
 	+$(MAKE) $(PKG_JOBS) -C "$(LINUX_DIR)" \
