@@ -518,7 +518,8 @@ define Build/InstallDev
 	cd $(PKG_INSTALL_DIR)/usr/lib/; rm -rf $(SYSTEM_LIB)
 
 	## copy header files.
-
+	## openmax
+	$(CP) $(PKG_BUILD_DIR)/libcedarc/openmax/include/*.h								$(PKG_INSTALL_DIR)/usr/include/
 	## log.h
 	$(CP) $(PKG_BUILD_DIR)/libcedarc/base/include/log.h								$(PKG_INSTALL_DIR)/usr/include/allwinner/
 
