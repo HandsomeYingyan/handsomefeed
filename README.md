@@ -10,14 +10,14 @@ This repository is intended to be layered on-top of an HandsomeMod buildroot. If
 
 This feed is enabled by default. To install all its package definitions, run:
 ```
-./scripts/feeds update packages
-./scripts/feeds install -a -p packages
+./scripts/feeds update handsomefeed
+./scripts/feeds install -a -p handsomefeed
 ```
 
 ## Warning
 
 The packages in nonfree directory just for testing!
 
-which come form (OpenIPC)[https://github.com/OpenIPC] and (Lindenis-org)[https://github.com/lindenis-org]
+which come form [OpenIPC](https://github.com/OpenIPC) and [Lindenis-org](https://github.com/lindenis-org)
 
 All the packages in this repository only tested to work on HandsomeMod!
