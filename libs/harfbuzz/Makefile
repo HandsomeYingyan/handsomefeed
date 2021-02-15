@@ -11,8 +11,8 @@ PKG_NAME:=harfbuzz
 PKG_VERSION:=2.7.4
 PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=https://www.freedesktop.org/software/harfbuzz/release/
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_SOURCE_URL:=https://github.com/harfbuzz/harfbuzz/releases/download/$(PKG_VERSION)/
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_HASH:=6ad11d653347bd25d8317589df4e431a2de372c0cf9be3543368e07ec23bb8e7
 
 PKG_BUILD_PARALLEL:=1
