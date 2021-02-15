@@ -20,6 +20,7 @@ define Package/$(PKG_NAME)/Default
 	SECTION:=libs
 	CATEGORY:=Libraries
 	SUBMENU:=GPU Libraries
+	DEPENDS:= @TARGET_sunxi
 endef
 
 define Package/$(PKG_NAME)/description/Default

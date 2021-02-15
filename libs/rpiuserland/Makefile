@@ -32,7 +32,8 @@ define Package/raspicam
   CATEGORY:=Multimedia
   TITLE:=Capturing video with the Raspberry-Pi camera module.
   URL:=https://github.com/raspberrypi/userland
-  DEPENDS+= +kmod-video-bcm2835 +libpthread +librt +libstdcpp +libc +brcm2708-gpu-fw +kmod-hwmon-bcm2835 +kmod-i2c-bcm2835 +kmod-random-bcm2835 +kmod-smi-bcm2835-dev +kmod-sound-arm-bcm2835 +kmod-sound-soc-bcm2835-i2s +kmod-spi-bcm2835-aux +kmod-spi-bcm2835 +kmod-i2c-bcm2708 +rpiuserland-rest
+  DEPENDS+=@TARGET_bcm28xx +libpthread +librt +libstdcpp +libc 
+#+brcm2708-gpu-fw +kmod-hwmon-bcm2835 +kmod-i2c-bcm2835 +kmod-random-bcm2835 +kmod-smi-bcm2835-dev +kmod-sound-arm-bcm2835 +kmod-sound-soc-bcm2835-i2s +kmod-spi-bcm2835-aux +kmod-spi-bcm2835 +kmod-i2c-bcm2708 +rpiuserland-rest +kmod-video-bcm2835 
 endef
 
 define Package/rpiuserland-rest
@@ -40,7 +41,7 @@ define Package/rpiuserland-rest
 	CATEGORY:=Utilities
 	URL:=https://github.com/raspberrypi/userland
 	TITLE:=the rest of the rpiuserland that are not contain in raspicam.
-	DEPENDS+= +raspicam
+	DEPENDS+=@TARGET_bcm28xx +raspicam
 endef
 
 define Package/raspicam/description

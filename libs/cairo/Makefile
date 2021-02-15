@@ -61,7 +61,8 @@ $(call Package/cairo/Default)
   DEPENDS:=+pixman +libpng +zlib +fontconfig \
 	  +PACKAGE_libfreetype:libfreetype \
 	  +PACKAGE_glib2:glib2 \
-	  +PACKAGE_liblzo:liblzo
+	  +PACKAGE_liblzo:liblzo\
+	  +WESTON_OPENGL_ES:mesa
   MENU:=1
 endef
 

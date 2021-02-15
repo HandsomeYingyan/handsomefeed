@@ -17,8 +17,6 @@ include $(INCLUDE_DIR)/package.mk
 PKG_LICENSE:=Gplv2
 PKG_LICENSE_FILES:=LICENSE
 
-PKG_BUILD_DEPENDS:= hisi-arm9-osdrv-lib
-
 define Package/$(PKG_NAME)
 	SECTION:=hisilicon
 	CATEGORY:=Hisilicon

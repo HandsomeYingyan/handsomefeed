@@ -1,0 +1,69 @@
+if PACKAGE_retroarch
+
+config RETROARCH_ALSA
+    bool "Enabel alsa support"
+    default y
+
+config RETROARCH_SDL2
+    bool "Enabel sdl2 support"
+    default n
+
+config RETROARCH_QT5
+    bool "Enabel qt5 support"
+    default n
+
+config RETROARCH_FFMPEG
+    bool "Enabel ffmpeg support"
+    default n
+       
+config RETROARCH_DRM
+    bool "Enabel DRM based KMS support"
+    default n
+    
+config RETROARCH_WAYLAND
+    bool "Enabel wayland support"
+    default n
+
+config RETROARCH_V4L2
+    bool "Enabel v4l2 support"
+    default n
+
+config RETROARCH_OPENSSL
+    bool "Enabel openssl support"
+    default n
+    
+config RETROARCH_PULSEAUDIO
+    bool "Enabel pulseaudio support"
+    default n
+
+config RETROARCH_EUDEV
+    bool "Enabel eudev support"
+    default n
+
+config RETROARCH_MESA
+    bool "Enabel opengl support provide by open-source driver MESA"
+    default n
+    
+config RETROARCH_MALI
+    bool "Enabel opengl support provide by allwinner mali blobs"
+    depend on (aarch64 || arm || armeb)
+    default n
+
+config RETROARCH_MENU_MATERIAUI
+    bool "Enabel Materiaui Menu Support"
+    default y
+    
+config RETROARCH_MENU_XMB
+    bool "Enabel Xmb Menu Support"
+    default n
+    
+config RETROARCH_MENU_OZONE
+    bool "Enabel Ozone Menu Support"
+    default n
+
+config RETROARCH_MENU_RGUI
+    bool "Enabel Rgui Menu Support"
+    default n
+
+endif
+

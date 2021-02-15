@@ -30,6 +30,7 @@ define Package/libump
   CATEGORY:=Libraries
   TITLE:=This library is a requirement for ARMs binary Mali driver
   URL:=http://github.com/linux-sunxi/libump
+  DEPENDS:=@TARGET_sunxi
 endef
 
 define Package/libump/description
