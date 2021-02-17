@@ -28,7 +28,7 @@ endef
 
 CONFIGURE_ARGS += \
   --prefix=/usr \
-  --enable-gl \
+  --disable-gl \
   --disable-x11 \
   --disable-gles1 \
   --enable-egl \

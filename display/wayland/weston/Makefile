@@ -31,14 +31,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=weston
 PKG_VERSION:=8.0.0
-PKG_RELEASE:=1
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_URL:=http://wayland.freedesktop.org/releases
 PKG_MD5SUM:=53e4810d852df0601d01fd986a5b22b3
-PKG_BUILD_DEPENDS:=meson/host 
-
+PKG_BUILD_DEPENDS:=meson/host wayland/host
 PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=0
 PKG_INSTALL:=1
@@ -69,6 +68,7 @@ modesetting and evdev input as well as under X11.
 endef
 
 MESON_ARGS += \
+	-Dwayland-scanner-path=$(STAGING_DIR_HOSTPKG)/bin/wayland-scanner \
 	-Dbackend-headless=false \
 	-Dcolor-management-colord=false \
 	-Dremoting=false \
@@ -163,6 +163,7 @@ define Package/weston/install
 	$(INSTALL_DIR) $(1)/usr/share
 	$(INSTALL_DIR) $(1)/etc/xdg
 	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/usr/libexec
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libweston-8/*.so* $(1)/usr/lib/libweston-8/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/weston/*.so* $(1)/usr/lib/weston/
@@ -170,6 +171,7 @@ define Package/weston/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/* $(1)/usr/lib/pkgconfig
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/* $(1)/usr/bin/
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/* $(1)/usr/share/
+	$(CP) $(PKG_INSTALL_DIR)/usr/libexec/* $(1)/usr/libexec/
 	$(CP) ./weston.ini $(1)/etc/xdg
 	$(CP) ./weston $(1)/etc/init.d
 endef

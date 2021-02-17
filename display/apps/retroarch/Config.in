@@ -46,7 +46,6 @@ config RETROARCH_MESA
     
 config RETROARCH_MALI
     bool "Enabel opengl support provide by allwinner mali blobs"
-    depend on (aarch64 || arm || armeb)
     default n
 
 config RETROARCH_MENU_MATERIAUI

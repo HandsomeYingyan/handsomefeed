@@ -21,12 +21,12 @@ define Package/retroarch
   CATEGORY:=RetroArch
   TITLE:=Reference frontend for the libretro API
   DEPENDS:=+retroarch-assets +zlib +RETROARCH_FFMPEG:ffmpeg \
-  	+RETROARCH_QT5:qt5-core +RETROARCH_DRM:libdrm \
-  	+RETROARCH_ALSA:alsa-lib  +RETROARCH_V4L2:libv4l \
-   	+RETROARCH_EUDEV:eudev +RETROARCH_SDL2:SDL2 \
-   	+RETROARCH_MALI:mali400-um +RETROARCH_MESA:mesa \
-   	+RETROARCH_OPENSSL:openssl +RETROARCH_PULSEAUDIO:pulseaudio \
-   	+RETROARCH_WAYLAND:wayland
+  +RETROARCH_QT5:qt5-core +RETROARCH_DRM:libdrm \
+  +RETROARCH_ALSA:alsa-lib  +RETROARCH_V4L2:libv4l \
+  +RETROARCH_EUDEV:eudev +RETROARCH_SDL2:SDL2 \
+  +RETROARCH_MALI:mali400-um +RETROARCH_MESA:mesa \
+  +RETROARCH_OPENSSL:openssl +RETROARCH_PULSEAUDIO:pulseaudio \
+  +RETROARCH_WAYLAND:wayland
   URL:=https://retroarch.com
 endef
 
@@ -54,7 +54,7 @@ CONFIGURE_ARGS += \
 	--disable-builtinflac \
 	--disable-builtinmbedtls \
 	--disable-builtinminiupnpc \
-	--disable-builtinzlib \ 
+	--disable-builtinzlib \
 	--disable-systemd \
 	--disable-xvideo \
 	--disable-sdl \
@@ -62,114 +62,115 @@ CONFIGURE_ARGS += \
 	--disable-jack \
 	--disable-tinyalsa \
 	--disable-egl
-		
+
+
 ifeq ($(CONFIG_RETROARCH_ALSA),y)
-CONFIGURE_ARGS += --enable-alsa
+    CONFIGURE_ARGS += --enable-alsa
 else
-CONFIGURE_ARGS += --disable-alsa
+    CONFIGURE_ARGS += --disable-alsa
 endif
 
 ifeq ($(CONFIG_RETROARCH_OPENSSL),y)
-CONFIGURE_ARGS += --enable-ssl
+    CONFIGURE_ARGS += --enable-ssl
 else
-CONFIGURE_ARGS += --disable-ssl
+    CONFIGURE_ARGS += --disable-ssl
 endif
 
 ifeq ($(CONFIG_RETROARCH_PULSEAUDIO),y)
-CONFIGURE_ARGS += --enable-pulse
+    CONFIGURE_ARGS += --enable-pulse
 else
-CONFIGURE_ARGS += --disable-pulse
+    CONFIGURE_ARGS += --disable-pulse
 endif
 
 ifeq ($(CONFIG_RETROARCH_EUDEV),y)
-CONFIGURE_ARGS += --enable-udev
+    CONFIGURE_ARGS += --enable-udev
 else
-CONFIGURE_ARGS += --disable-udev
+    CONFIGURE_ARGS += --disable-udev
 endif
 
 ifeq ($(CONFIG_RETROARCH_MESA),y)
-CONFIGURE_ARGS += --enable-opengl
+    CONFIGURE_ARGS += --enable-opengl
 else
-CONFIGURE_ARGS += --disable-opengl
+    CONFIGURE_ARGS += --disable-opengl
 endif
 
 ifeq ($(CONFIG_RETROARCH_MESA),y)
-CONFIGURE_ARGS += --enable-opengles
+    CONFIGURE_ARGS += --enable-opengles
 else
-CONFIGURE_ARGS += --disable-opengles
+    CONFIGURE_ARGS += --disable-opengles
 endif
 
 ifeq ($(CONFIG_RETROARCH_MALI),y)
-CONFIGURE_ARGS += --enable-opengl
+    CONFIGURE_ARGS += --enable-opengl
 else
-CONFIGURE_ARGS += --disable-opengl
+    CONFIGURE_ARGS += --disable-opengl
 endif
 
 ifeq ($(CONFIG_RETROARCH_MALI),y)
-CONFIGURE_ARGS += --enable-opengles
+    CONFIGURE_ARGS += --enable-opengles
 else
-CONFIGURE_ARGS += --disable-opengles
+    CONFIGURE_ARGS += --disable-opengles
 endif
 
 
 ifeq ($(CONFIG_RETROARCH_FFMPEG),y)
-CONFIGURE_ARGS += --enable-ffmpeg
+    CONFIGURE_ARGS += --enable-ffmpeg
 else
-CONFIGURE_ARGS += --disable-ffmpeg
+    CONFIGURE_ARGS += --disable-ffmpeg
 endif
 
 ifeq ($(CONFIG_RETROARCH_QT5),y)
-CONFIGURE_ARGS += --enable-qt
+    CONFIGURE_ARGS += --enable-qt
 else
-CONFIGURE_ARGS += --disable-qt
+    CONFIGURE_ARGS += --disable-qt
 endif
 
 ifeq ($(CONFIG_RETROARCH_DRM),y)
-CONFIGURE_ARGS += --enable-kms
+    CONFIGURE_ARGS += --enable-kms
 else
-CONFIGURE_ARGS += --disable-kms
+    CONFIGURE_ARGS += --disable-kms
 endif
 
 ifeq ($(CONFIG_RETROARCH_SDL2),y)
-CONFIGURE_ARGS += --enable-sdl2
+    CONFIGURE_ARGS += --enable-sdl2
 else
-CONFIGURE_ARGS += --disable-sdl2
+    CONFIGURE_ARGS += --disable-sdl2
 endif
 
 ifeq ($(CONFIG_RETROARCH_WAYLAND),y)
-CONFIGURE_ARGS += --enable-wayland
+    CONFIGURE_ARGS += --enable-wayland
 else
-CONFIGURE_ARGS += --disable-wayland
+    CONFIGURE_ARGS += --disable-wayland
 endif
 
 ifeq ($(CONFIG_RETROARCH_V4L2),y)
-CONFIGURE_ARGS += --enable-v4l2
+    CONFIGURE_ARGS += --enable-v4l2
 else
-CONFIGURE_ARGS += --disable-v4l2
+    CONFIGURE_ARGS += --disable-v4l2
 endif
 
 ifeq ($(CONFIG_RETROARCH_MENU_OZONE),y)
-CONFIGURE_ARGS += --enable-rgui
+    CONFIGURE_ARGS += --enable-rgui
 else
-CONFIGURE_ARGS += --disable-rgui
+    CONFIGURE_ARGS += --disable-rgui
 endif
 
 ifeq ($(CONFIG_RETROARCH_MENU_MATERIAUI),y)
-CONFIGURE_ARGS += --enable-materialui
+    CONFIGURE_ARGS += --enable-materialui
 else
-CONFIGURE_ARGS += --disable-materialui
+    CONFIGURE_ARGS += --disable-materialui
 endif
 
 ifeq ($(CONFIG_RETROARCH_MENU_XMB),y)
-CONFIGURE_ARGS += --enable-xmb
+    CONFIGURE_ARGS += --enable-xmb
 else
-CONFIGURE_ARGS += --disable-xmb
+    CONFIGURE_ARGS += --disable-xmb
 endif
 
 ifeq ($(CONFIG_RETROARCH_MENU_OZONE),y)
-CONFIGURE_ARGS += --enable-ozone
+    CONFIGURE_ARGS += --enable-ozone
 else
-CONFIGURE_ARGS += --disable-ozone
+    CONFIGURE_ARGS += --disable-ozone
 endif
 
 define Build/InstallDev

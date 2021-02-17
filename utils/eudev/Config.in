@@ -25,7 +25,7 @@ config EUDEV_EXTRA_cdrom_id
 
 config EUDEV_EXTRA_collect
 	bool "Install eudev collect"
-	default n
+	default y
 	help
 	  Adds ID to the list governed by <checkpoint>
 
@@ -49,7 +49,7 @@ config EUDEV_EXTRA_mtd_probe
 
 config EUDEV_EXTRA_rule_generator
 	bool "Install (legacy) eudev rule_generator"
-	default n
+	default y
 	help
 
 config EUDEV_EXTRA_scsi_id

@@ -42,8 +42,8 @@ endef
 
 # speed up otherwise will take forewer but cosumes more memmory
 NUM_CORES ?= $(shell grep -c "vendor_id" /proc/cpuinfo)
-MAKE_FLAGS+=-j16
-HOST_MAKE_FLAGS+=-j16
+MAKE_FLAGS+=-j$(NUM_CORES)
+HOST_MAKE_FLAGS+=-j$(NUM_CORES)
 
 TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 

@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pango
-PKG_VERSION:=1.48.1
+PKG_VERSION:=1.44.6
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=@GNOME/$(PKG_NAME)/1.48/
-PKG_HASH:= 08c2d550a96559f15fb317d7167b96df57ef743fef946f4e274bd8b6f2918058
+PKG_SOURCE_URL:=@GNOME/$(PKG_NAME)/1.44/
+PKG_HASH:= 3e1e41ba838737e200611ff001e3b304c2ca4cdbba63d200a20db0b0ddc0f86c
 
 PKG_FIXUP:=autoreconf --force --install
 PKG_INSTALL:=1
@@ -32,7 +32,7 @@ define Package/pango
   CATEGORY:=Libraries
   TITLE:=Text layout and rendering library
   DEPENDS:=+libcairo +glib2 +fontconfig +libfreetype \
-	  +harfbuzz
+	  +harfbuzz +fontconfig
   URL:=http://www.pango.org/
 endef
 
@@ -47,7 +47,7 @@ endef
 
 MESON_ARGS += \
 	-Duse_fontconfig=true \
-	-Dintrospection=disabled
+	-Dintrospection=false
 	
 TARGET_CFLAGS+= \
 	-I$(STAGING_DIR)/usr/include/harfbuzz/

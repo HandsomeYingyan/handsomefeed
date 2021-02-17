@@ -44,17 +44,18 @@ endef
 
 MESON_ARGS += \
 	-Denable-docs=false \
-	-Denable-wayland=true \
+	-Denable-wayland=false \
 	-Denable-xkbregistry=false \
 	-Denable-x11=true
 	
-MESON_VARS += ac_cv_path_WAYLAND_SCANNER=$(STAGING_DIR_HOSTPKG)/bin/wayland-scanner
+#MESON_VARS += ac_cv_path_WAYLAND_SCANNER=$(STAGING_DIR_HOSTPKG)/bin/wayland-scanner
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/xkbcommon
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/xkbcommon/xkbcommon*.h $(1)/usr/include/xkbcommon
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libxkbcommon.{a,la,so*} $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libxkbcommon.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libxkbcommon-x11.so* $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/xkbcommon.pc $(1)/usr/lib/pkgconfig/
 endef
@@ -62,6 +63,7 @@ endef
 define Package/libxkbcommon/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libxkbcommon.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libxkbcommon-x11.so* $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,libxkbcommon))
